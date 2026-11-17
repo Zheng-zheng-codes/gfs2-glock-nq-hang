@@ -1,81 +1,102 @@
-# INFO: task hung in gfs2_glock_nq (fs/gfs2/glock.c:1518, v7.4-rc2)
+# INFO: task hung in gfs2_glock_nq (v7.4-rc3)
 
-Syzkaller-found hang bug on Linux v7.4-rc2, reproduced and verified by the
-fuzzing pipeline's state-primed reproducer machinery on freshly replayed
-VMs. This is the hang-form sibling of the `kernel BUG in gfs2_glock_nq`
-crash reported separately (both fire from the same statfs slow path).
+Syzkaller-found hang on Linux v7.4-rc3, reproduced and verified by the
+KernSight state-primed pipeline.
 
 ## Summary
 
-A syz-executor task blocked for more than 140 seconds acquiring a glock
-during a directory lookup:
+A syz-executor task blocks for more than 143 seconds in the GFS2 glock
+lookup/wait path during `umount`:
 
 ```
-INFO: task syz-executor:14887 blocked for more than 143 seconds.
-      Tainted: G L 7.4.0-rc2-kernsight-kasan #1
-task:syz-executor state:D stack:22792 pid:14887
+INFO: task syz-executor:32513 blocked for more than 143 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+task:syz-executor    state:D ...
 Call Trace:
- schedule+0xec/0x2d0 kernel/sched/core.c:7481
- ...
- gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
- __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
- __lookup_slow+0x15b/0x330 fs/namei.c:1925
- lookup_slow+0x59/0x80 fs/namei.c:1942
- walk_component fs/namei.c:2288 [inline]
- lookup_last fs/namei.c:2795 [inline]
+ __schedule
+  bit_wait
+   __wait_on_bit
+    out_of_line_wait_on_bit
+     wait_on_bit
+      gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+       gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+        gfs2_glock_nq_init
+         __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+          __lookup_slow
+           lookup_slow
+            path_lookupat
+             filename_lookup
+              user_path_at
+               ksys_umount
+                __x64_sys_umount
+                 do_syscall_64
 ```
 
-The task waits in `gfs2_glock_nq()` (fs/gfs2/glock.c:1518) via
-`gfs2_glock_nq_init()` during a lookup (`__gfs2_lookup()`,
-fs/gfs2/inode.c:1006) on a gfs2 mount: the glock holder it needs is held
-by another task (or the wait queue ordering deadlocks), so it sleeps in D
-state past the 143-second hung-task threshold. The guest runs with
-`hung_task_panic=0`, so this is a hang report rather than a panic.
+The task is in D state waiting for a GFS2 glock while unmounting a crafted
+GFS2 filesystem. The held locks include `i_mutex_dir_key` and
+`DCACHE_PAR_LOOKUP`; the glock grant does not make progress.
+
+## Verification
+
+- Pipeline attempt 1: budget exhausted (72 replay programs).
+- Pipeline attempt 2: `confirmed=true`, `status=verified`,
+  `verification_scope=snapshot_restore`
+- Time: `2026-11-16T13:02:12Z`
+- 182 replay programs, 0 priming programs
+- Evidence: `reproducer/repro.outcomes.jsonl`, `reproducer/repro.stats`,
+  `reproducer/repro.report`
+
+External fresh-VM verification (rc3):
+
+- Command: `syz-execprog -procs=8 -threaded -repeat=0 -executor ./syz-executor repro.kernsight.prog`
+- Run 1: kernel hung-task report at 331.48 s after boot
+  (`blocked for more than 143 seconds`)
+- Run 2: kernel hung-task report at 290.82 s after boot
+  (`blocked for more than 143 seconds`)
+- Both reports show the same `gfs2_glock_wait` -> `gfs2_glock_nq` ->
+  `__gfs2_lookup` -> `ksys_umount` stack.
+- Full serial logs: `logs/external-verification/`
+
+The hang is detected by the kernel's hung-task detector (`khungtaskd`), not
+by the test harness. The outer 600/700 s timeouts only stop the
+`-repeat=0` loop; the success signal is the kernel's
+`INFO: task ... blocked for more than ... seconds` message and stack.
 
 ## How to reproduce
 
 Environment: Debian trixie x86_64 guest (6 GiB RAM, 4 vCPU, KVM), kernel
-built from v7.4-rc2 with CONFIG_KASAN=y, CONFIG_PROVE_LOCKING=y,
-CONFIG_GFS2_FS=y, booted with `oops=panic`, `panic_on_warn=1` and
-`hung_task_panic=0`. See `environment.txt` for the exact QEMU command line
-and `kernel.config` for the configuration.
-
-The hang depends on glock-holder state accumulated by the preceding
-programs, so the reproducer is an ordered program set:
+built from v7.4-rc3 with CONFIG_KASAN=y, CONFIG_PROVE_LOCKING=y,
+CONFIG_GFS2_FS=y, booted with `oops=panic` and `panic_on_warn=1`. See
+`environment.txt` and `kernel.config`.
 
 ```sh
 # in the guest, as root:
-syz-execprog -procs=8 -threaded -repeat=0 -executor ./syz-executor repro.kernsight.prog
+syz-execprog -procs=8 -threaded -repeat=0 \
+    -executor ./syz-executor repro.kernsight.prog
 ```
 
-`reproducer/repro.kernsight.prog` is the pipeline-verified reproducer
-(state-reconstruction tail + triggering lookup, in execution order). In
-the fuzzing pipeline it was reproduced by the state-primed machinery on
-freshly replayed VMs (multiple verified sessions; the raw verification
-material is preserved in the pipeline artifacts).
-
-`reproducer/repro.prog` is the minimal triggering testcase extracted by
-the pipeline; it depends on the state above and does not reproduce alone.
-A C reproducer has not been included yet.
+The recipe has 183 entries and builds the glock state by repeated replay.
+Wait for the kernel hung-task detector to report
+`INFO: task ... blocked for more than 143 seconds` with the
+`gfs2_glock_nq` stack.
 
 ## Files
 
-- `kernel.config` — kernel configuration used (also required to interpret addresses)
-- `environment.txt` — kernel image info (sha256), QEMU command line, syzkaller commit, reproducer command
-- `reproducer/repro.kernsight.prog` — pipeline-verified reproducer (ordered program set)
-- `reproducer/repro.prog` — minimal triggering testcase (state-dependent; does not reproduce alone)
-- `reproducer/repro.priming.prog` — state-priming program set (pipeline repro recipe)
-- `logs/log-*.txt`, `logs/report-*.txt` — original syzkaller execution logs and crash reports from the fuzzing pipeline (24 hangs of this title)
-- `logs/machineInfo-*.txt`, `logs/title-stat.json` — guest environment info and title statistics
+- `description` — syzkaller title
+- `environment.txt` — kernel/guest image, QEMU command line, syzkaller commit
+- `kernel.config` — 7.4-rc3 kernel configuration
+- `reproducer/repro.kernsight.prog` — state recipe (183 entries)
+- `reproducer/repro.priming.prog` — priming part
+- `reproducer/repro.prog` — triggering testcase
+- `reproducer/repro.report`, `repro.stats`, `repro.outcomes.jsonl`,
+  `repro.context.json` — pipeline reproduction evidence
+- `logs/log-0.txt`, `logs/report-0.txt` — original rc3 syzkaller log/report
+- `logs/machineInfo-0.txt`, `logs/title-stat.json` — guest/title statistics
+- `logs/external-verification/` — full rc3 serial logs and run records for
+  the two external reproductions
 
-## Notes for maintainers
+## Notes
 
-- The blocked path is a lookup (`__gfs2_lookup()`) acquiring a glock via
-  `gfs2_glock_nq_init()`; identifying the conflicting holder from the full
-  console log (available in the pipeline artifacts on request) is the
-  natural next step.
-- The same statfs/lookup slow paths also produced the
-  `kernel BUG in gfs2_glock_nq` recursive-holder crash (reported
-  separately).
-- We can provide the kernel image, additional crash instances or raw
-  artifacts on request.
+- Crash title: `INFO: task hung in gfs2_glock_nq`
+- Subsystem: GFS2 glock/umount
+- The repro depends on the GFS2 mount/inode state built by the recipe.

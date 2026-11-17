@@ -1,0 +1,1677 @@
+INFO: task syz-executor:32513 blocked for more than 143 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000246
+RAX: 00000000002682f3 RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000242
+RAX: 00000000001f9da7 RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f3906c14c CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000246
+RAX: 00000000001e5c71 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055ac969d861c CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 163 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000242
+RAX: 00000000002729b5 RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000246
+RAX: 00000000001f0a65 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055ac969d861c CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000246
+RAX: 00000000001fb71d RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f38f886a0 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 184 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 2 to CPUs 0-1,3:
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 0 Comm: swapper/3 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001cfdf8 EFLAGS: 00000246
+RAX: 000000000020ac7b RBX: ff110001000f2640 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e4c8 R08: 0000000000000001 R09: ffe21c00347e68e5
+R10: ff110001a3f3472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dd19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000564fc9bf8db4 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000242
+RAX: 00000000001fb829 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055ac969d861c CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000246
+RAX: 000000000027dd71 RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 204 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 2 to CPUs 0-1,3:
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000242
+RAX: 0000000000207175 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055ac969d861c CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 0 Comm: swapper/3 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001cfdf8 EFLAGS: 00000246
+RAX: 000000000020c7c5 RBX: ff110001000f2640 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e4c8 R08: 0000000000000001 R09: ffe21c00347e68e5
+R10: ff110001a3f3472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dd19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000564fc9bf8db4 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000246
+RAX: 00000000002886af RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+clocksource: Marking clocksource tsc unstable due to frequency skew
+clocksource: Watchdog               kvm-clock interval:       4510363270ns
+clocksource: Clocksource                  tsc interval:       4534138294ns
+tsc: Marking TSC unstable due to clocksource watchdog
+INFO: task syz-executor:32513 blocked for more than 227 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by pr/ttyS0/46: 2, on CPU#0:
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: rcu_try_lock_acquire include/linux/rcupdate.h:314 [inline]
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: srcu_read_lock_nmisafe include/linux/srcu.h:529 [inline]
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: console_srcu_read_lock+0x50/0x70 kernel/printk/printk.c:291
+ #1: ffffffff9d5d7298 (&port_lock_key){-.-.}-{3:3}, at: __uart_port_lock_irqsave include/linux/serial_core.h:613 [inline]
+ #1: ffffffff9d5d7298 (&port_lock_key){-.-.}-{3:3}, at: univ8250_console_device_lock+0x69/0xc0 drivers/tty/serial/8250/8250_core.c:413
+locks held by khungtaskd/47: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by kworker/2:2/1259: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: process_one_work+0x862/0x1dc0 kernel/workqueue.c:3460
+locks held by systemd-journal/4760: 2, on CPU#1:
+ #0: ff11000026a88f88 (vm_lock){++++}-{0:0}, at: lock_vma_under_rcu+0x11d/0x5a0 mm/mmap_lock.c:339
+ #1: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #1: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #1: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: __pte_offset_map+0xa4/0x4a0 mm/pgtable-generic.c:302
+locks held by kworker/1:4/4774: 3, on CPU#1:
+ #0: ff1100001d88fd48 ((wq_completion)events_power_efficient){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa00000021cfd08 ((gc_work).work){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+ #2: ffffffff9175cb78 ("ratelimiter_table_lock"){+.+.}-{3:3}, at: spin_lock include/linux/spinlock.h:347 [inline]
+ #2: ffffffff9175cb78 ("ratelimiter_table_lock"){+.+.}-{3:3}, at: wg_ratelimiter_gc_entries+0x66/0x430 drivers/net/wireguard/ratelimiter.c:63
+locks held by kworker/u16:7/20282: 5, on CPU#3:
+ #0: ff11000030eed148 ((wq_completion)bat_events){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa0000004e6fd08 ((work_completion)(&(&bat_priv->dat.work)->work)){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+ #2: ff11000120151d58 (&hash->list_locks[i]){+...}-{3:3}, at: spin_lock_bh include/linux/spinlock.h:353 [inline]
+ #2: ff11000120151d58 (&hash->list_locks[i]){+...}-{3:3}, at: __batadv_dat_purge.part.0+0xff/0x3b0 net/batman-adv/distributed-arp-table.c:240
+ #3: ffffffff9d5be4f0 (&obj_hash[i].lock){-.-.}-{2:2}, at: debug_object_activate+0x146/0x4b0 lib/debugobjects.c:873
+ #4: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #4: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #4: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: class_rcu_constructor include/linux/rcupdate.h:1216 [inline]
+ #4: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: unwind_next_frame+0xbe/0x22c0 arch/x86/kernel/unwind_orc.c:495
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 2 to CPUs 0-1,3:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 10218 Comm: kworker/0:3 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Workqueue: events clocksource_watchdog_work
+RIP: 0010:__bfs+0x17d/0x2b0 kernel/locking/lockdep.c:1859
+Code: 00 39 1d 76 82 84 16 4c 89 04 f5 80 52 e0 98 73 06 89 1d 66 82 84 16 49 8b 00 48 39 c1 0f 84 ec fe ff ff 4c 89 78 30 48 8b 00 <48> 39 c8 75 f4 4d 85 ff 0f 85 e0 fe ff ff 8b 1d ff 06 40 17 3b 1d
+RSP: 0018:ffa0000003b1f570 EFLAGS: 00000002
+RAX: ffffffff99c0ab98 RBX: 0000000000000195 RCX: ffffffff9825e108
+RDX: 0000000000000144 RSI: 0000000000000198 RDI: ffffffff99b02648
+RBP: 0000000000000030 R08: ffffffff99aa39e8 R09: 0000000000000004
+R10: ffa0000003b1f6f8 R11: 0000000000000000 R12: ffffffff81a0bd10
+R13: ffa0000003b1f600 R14: ffffffff81a0bdd0 R15: ffffffff99b02648
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ __bfs_backwards kernel/locking/lockdep.c:1904 [inline]
+ check_irq_usage+0xb5/0xc80 kernel/locking/lockdep.c:2840
+ check_prev_add+0xfd/0xe60 kernel/locking/lockdep.c:3213
+ check_prevs_add kernel/locking/lockdep.c:3328 [inline]
+ validate_chain kernel/locking/lockdep.c:3952 [inline]
+ __lock_acquire+0x1661/0x2110 kernel/locking/lockdep.c:5288
+ lock_acquire kernel/locking/lockdep.c:5942 [inline]
+ lock_acquire+0x1bf/0x370 kernel/locking/lockdep.c:5899
+ _raw_spin_lock_nested+0x39/0x50 kernel/locking/spinlock.c:413
+ raw_spin_rq_lock_nested+0x33/0x140 kernel/sched/core.c:677
+ raw_spin_rq_lock kernel/sched/sched.h:1719 [inline]
+ rq_lock kernel/sched/sched.h:2057 [inline]
+ ttwu_queue kernel/sched/core.c:4154 [inline]
+ try_to_wake_up+0x96e/0x18f0 kernel/sched/core.c:4489
+ __kthread_create_on_node+0x27e/0x400 kernel/kthread.c:501
+ kthread_create_on_node+0xc3/0x100 kernel/kthread.c:559
+ clocksource_watchdog_work+0x29/0x60 kernel/time/clocksource.c:186
+ process_one_work+0xa9c/0x1dc0 kernel/workqueue.c:3495
+ process_scheduled_works kernel/workqueue.c:3578 [inline]
+ worker_thread+0x698/0xeb0 kernel/workqueue.c:3659
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 20282 Comm: kworker/u16:7 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Workqueue: bat_events batadv_tt_purge
+RIP: 0010:mark_lock+0x94/0x10a0 kernel/locking/lockdep.c:4818
+Code: e0 51 25 98 48 89 d9 48 23 48 60 0f 84 a7 03 00 00 41 be 01 00 00 00 48 8b 44 24 68 65 48 2b 05 5a 53 7f 14 0f 85 b7 0b 00 00 <48> 8d 65 d8 44 89 f0 5b 41 5c 41 5d 41 5e 41 5f 5d e9 d6 7e 4c 0a
+RSP: 0018:ffa0000004e6fa30 EFLAGS: 00000046
+RAX: 0000000000000000 RBX: 0000000000000040 RCX: 0000000000000040
+RDX: 0000000000000006 RSI: ff1100005fa7d858 RDI: ff1100005fa7cc80
+RBP: ffa0000004e6fac8 R08: 0000000000000000 R09: 0000000000000001
+R10: ffffffff92b216e7 R11: 0000000000000000 R12: 0000000000000006
+R13: ff1100005fa7d858 R14: 0000000000000001 R15: ff1100005fa7cc80
+FS:  0000000000000000(0000) GS:ff1100020dd19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000564fc9bf8db4 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ mark_held_locks+0x49/0x80 kernel/locking/lockdep.c:4369
+ __trace_hardirqs_on_caller kernel/locking/lockdep.c:4395 [inline]
+ lockdep_hardirqs_on_prepare+0xf8/0x1b0 kernel/locking/lockdep.c:4454
+ trace_hardirqs_on+0x41/0x50 kernel/trace/trace_preemptirq.c:78
+ __local_bh_enable_ip+0xb0/0x130 kernel/softirq.c:478
+ spin_unlock_bh include/linux/spinlock.h:407 [inline]
+ batadv_tt_local_purge+0x272/0x340 net/batman-adv/translation-table.c:1848
+ batadv_tt_purge+0x35/0xb30 net/batman-adv/translation-table.c:4332
+ process_one_work+0xa9c/0x1dc0 kernel/workqueue.c:3495
+ process_scheduled_works kernel/workqueue.c:3578 [inline]
+ worker_thread+0x698/0xeb0 kernel/workqueue.c:3659
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 4760 Comm: systemd-journal Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0033:0x7f7f3b181842
+Code: f1 48 83 e1 e0 62 f1 45 20 74 01 c5 fb 93 c8 c4 e2 7b f7 c9 d1 e1 0f 84 5e fd ff ff 48 89 f8 0f bc c9 f3 a4 c3 0f 1f 00 89 f8 <62> a1 fd 00 ef c0 25 ff 0f 00 00 3d e0 0f 00 00 0f 87 28 01 00 00
+RSP: 002b:00007ffe47e21f78 EFLAGS: 00000202
+RAX: 000000003b527afe RBX: 00007ffe47e229a0 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 00007f7f3b527afe RDI: 00007f7f3b527afe
+RBP: 00007f7f3b527afe R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffe47e229a0 R14: 00007ffe47e229a1 R15: 0000000000000000
+FS:  00007f7f3b6469c0 GS:  0000000000000000
+INFO: task syz-executor:32513 blocked for more than 268 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by kworker/1:6/17194: 2, on CPU#1:
+ #0: ff1100001d88fd48 ((wq_completion)events_power_efficient){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa000000975fd08 ((gc_work).work){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000242
+RAX: 000000000028d16b RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000242
+RAX: 0000000000222001 RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f39086718 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000242
+RAX: 0000000000209d67 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f38fb4d90 CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 288 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000242
+RAX: 000000000022ee89 RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f39086718 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000246
+RAX: 000000000028e999 RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000242
+RAX: 000000000020ab6b RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f38fb4d90 CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 309 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000246
+RAX: 000000000023b29f RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f39086718 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000246
+RAX: 000000000020bd39 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f38fb4d90 CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000246
+RAX: 000000000028f911 RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+INFO: task syz-executor:32513 blocked for more than 329 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by khungtaskd/47: 1, on CPU#3:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 3 to CPUs 0-2:
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 0 Comm: swapper/1 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001afdf8 EFLAGS: 00000242
+RAX: 000000000020cce9 RBX: ff110000216f4c80 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c00042de990 R08: 0000000000000001 R09: ffe21c00142a68e5
+R10: ff110000a153472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f38fb4d90 CR3: 000000010634a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 0 Comm: swapper/2 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffa00000001bfdf8 EFLAGS: 00000246
+RAX: 0000000000246395 RBX: ff110001000f0000 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffe21c002001e000 R08: 0000000000000001 R09: ffe21c00347c68e5
+R10: ff110001a3e3472b R11: 0000000000000001 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+FS:  0000000000000000(0000) GS:ff1100020dc19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f39086718 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ start_secondary+0x21d/0x2d0 arch/x86/kernel/smpboot.c:312
+ common_startup_64+0x13e/0x158
+ </TASK>
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+RIP: 0010:pv_native_safe_halt+0x1e/0x30 arch/x86/kernel/paravirt.c:64
+Code: 90 90 90 90 90 90 90 90 90 90 90 90 f3 0f 1e fa 0f 1f 44 00 00 66 90 0f 1f 44 00 00 0f 00 2d 69 23 22 00 0f 1f 44 00 00 fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 90 90 90 90
+RSP: 0018:ffffffff8fe07ce8 EFLAGS: 00000242
+RAX: 000000000029090b RBX: ffffffff8fe93600 RCX: ffffffff8bea3419
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: fffffbfff1fd26c0 R08: 0000000000000001 R09: ffe21c00142868e5
+R10: ff110000a143472b R11: 0000000000000000 R12: dffffc0000000000
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000013bd0
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ arch_safe_halt arch/x86/include/asm/paravirt.h:62 [inline]
+ default_idle+0xe/0x20 arch/x86/kernel/process.c:768
+ default_idle_call+0x75/0xc0 kernel/sched/idle.c:122
+ cpuidle_idle_call kernel/sched/idle.c:199 [inline]
+ do_idle+0x3fa/0x620 kernel/sched/idle.c:355
+ cpu_startup_entry+0x54/0x60 kernel/sched/idle.c:458
+ rest_init+0x1f3/0x330 init/main.c:789
+ start_kernel+0x3f9/0x4d0 init/main.c:1247
+ x86_64_start_reservations+0x18/0x30 arch/x86/kernel/head64.c:310
+ x86_64_start_kernel+0x141/0x1a0 arch/x86/kernel/head64.c:291
+ common_startup_64+0x13e/0x158
+ </TASK>
+clocksource: Marking clocksource tsc unstable due to frequency skew
+clocksource: Watchdog               kvm-clock interval:       4486927137ns
+clocksource: Clocksource                  tsc interval:        500376601ns
+tsc: Marking TSC unstable due to clocksource watchdog
+INFO: task syz-executor:32513 blocked for more than 227 seconds.
+      Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor    state:D stack:24072 pid:32513 tgid:32513 ppid:1      task_flags:0x400140 flags:0x00080002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5584 [inline]
+ __schedule+0x1405/0x7510 kernel/sched/core.c:7386
+ __schedule_loop kernel/sched/core.c:7463 [inline]
+ schedule+0xec/0x2d0 kernel/sched/core.c:7478
+ bit_wait+0x1a/0x130 kernel/sched/wait_bit.c:248
+ __wait_on_bit+0x6f/0x1b0 kernel/sched/wait_bit.c:52
+ out_of_line_wait_on_bit+0xdf/0x110 kernel/sched/wait_bit.c:67
+ wait_on_bit include/linux/wait_bit.h:78 [inline]
+ wait_on_bit include/linux/wait_bit.h:73 [inline]
+ gfs2_glock_wait+0xaa/0x2e0 fs/gfs2/glock.c:1239
+ gfs2_glock_nq+0xd0b/0x17b0 fs/gfs2/glock.c:1530
+ gfs2_glock_nq_init fs/gfs2/glock.h:253 [inline]
+ __gfs2_lookup+0x10f/0x2a0 fs/gfs2/inode.c:1006
+ __lookup_slow+0x15b/0x330 fs/namei.c:1925
+ lookup_slow+0x59/0x80 fs/namei.c:1942
+ walk_component fs/namei.c:2288 [inline]
+ lookup_last fs/namei.c:2795 [inline]
+ path_lookupat+0x603/0xb80 fs/namei.c:2819
+ filename_lookup+0x218/0x5f0 fs/namei.c:2848
+ user_path_at+0x45/0x90 fs/namei.c:3647
+ ksys_umount fs/namespace.c:2123 [inline]
+ __do_sys_umount fs/namespace.c:2131 [inline]
+ __se_sys_umount fs/namespace.c:2129 [inline]
+ __x64_sys_umount+0x100/0x190 fs/namespace.c:2129
+ do_syscall_x64 arch/x86/entry/syscall_64.c:61 [inline]
+ do_syscall_64+0x132/0x7c0 arch/x86/entry/syscall_64.c:89
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f18e8bb44db
+RSP: 002b:00007ffd4c445e58 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f18e8bb44db
+RDX: 00007f18e8a526a0 RSI: 0000000000000009 RDI: 00007ffd4c445f10
+RBP: 00007ffd4c445f10 R08: 0000000000000000 R09: 00007ffd4c445ce0
+R10: 000055558aa756c3 R11: 0000000000000246 R12: 00007f18e8c4fe26
+R13: 00007ffd4c447010 R14: 000055558aa75680 R15: 0000000000061143
+ </TASK>
+
+Showing all locks held in the system:
+locks held by pr/ttyS0/46: 1, on CPU#0:
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: rcu_try_lock_acquire include/linux/rcupdate.h:314 [inline]
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: srcu_read_lock_nmisafe include/linux/srcu.h:529 [inline]
+ #0: ffffffff90206118 (console_srcu){....}-{0:0}, at: console_srcu_read_lock+0x50/0x70 kernel/printk/printk.c:291
+locks held by khungtaskd/47: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: debug_show_all_locks+0x36/0x1c0 kernel/locking/lockdep.c:6871
+locks held by kworker/2:2/1259: 1, on CPU#2:
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_lock_acquire include/linux/rcupdate.h:309 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: rcu_read_lock include/linux/rcupdate.h:849 [inline]
+ #0: ffffffff90226180 (rcu_read_lock){....}-{1:3}, at: process_one_work+0x862/0x1dc0 kernel/workqueue.c:3460
+locks held by kworker/1:4/4774: 2, on CPU#1:
+ #0: ff1100001d88fd48 ((wq_completion)events_power_efficient){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa00000021cfd08 ((gc_work).work){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+locks held by kworker/0:3/10218: 3, on CPU#0:
+ #0: ff1100001de98d48 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa0000003b1fd08 (watchdog_work){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+ #2: ff11000020aad718 (&p->pi_lock){-.-.}-{2:2}, at: class_raw_spinlock_irqsave_constructor include/linux/spinlock.h:594 [inline]
+ #2: ff11000020aad718 (&p->pi_lock){-.-.}-{2:2}, at: try_to_wake_up+0xcc/0x18f0 kernel/sched/core.c:4371
+locks held by kworker/u16:7/20282: 4, on CPU#3:
+ #0: ff11000030eed148 ((wq_completion)bat_events){+.+.}-{0:0}, at: process_one_work+0x1505/0x1dc0 kernel/workqueue.c:3470
+ #1: ffa0000004e6fd08 ((work_completion)(&(&bat_priv->dat.work)->work)){+.+.}-{0:0}, at: process_one_work+0x9f6/0x1dc0 kernel/workqueue.c:3471
+ #2: ff11000120150dd8 (&hash->list_locks[i]){+...}-{3:3}, at: spin_lock_bh include/linux/spinlock.h:353 [inline]
+ #2: ff11000120150dd8 (&hash->list_locks[i]){+...}-{3:3}, at: __batadv_dat_purge.part.0+0xff/0x3b0 net/batman-adv/distributed-arp-table.c:240
+ #3: ffffffff9d5be4f0 (&obj_hash[i].lock){-.-.}-{2:2}, at: debug_object_activate+0x146/0x4b0 lib/debugobjects.c:873
+locks held by syz-executor/32513: 2, last CPU#2:
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: inode_lock_shared include/linux/fs.h:1042 [inline]
+ #0: ff110001402e9ac0 (&type->i_mutex_dir_key#10){++++}-{4:4}, at: lookup_slow+0x4c/0x80 fs/namei.c:1941
+ #1: ff110001317ed2e0 (DCACHE_PAR_LOOKUP#13){+.+.}-{0:0}, at: __d_alloc_parallel+0xd6f/0x1570 fs/dcache.c:3002
+
+=============================================
+
+NMI backtrace for cpu 2
+CPU: 2 UID: 0 PID: 47 Comm: khungtaskd Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:94 [inline]
+ dump_stack_lvl+0x116/0x1b0 lib/dump_stack.c:120
+ nmi_cpu_backtrace+0x2a0/0x350 lib/nmi_backtrace.c:123
+ nmi_trigger_cpumask_backtrace+0x286/0x370 lib/nmi_backtrace.c:66
+ trigger_all_cpu_backtrace include/linux/nmi.h:164 [inline]
+ __sys_info lib/sys_info.c:157 [inline]
+ sys_info+0x133/0x180 lib/sys_info.c:165
+ check_hung_uninterruptible_tasks kernel/hung_task.c:377 [inline]
+ watchdog+0xf12/0x1300 kernel/hung_task.c:598
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+Sending NMI from CPU 2 to CPUs 0-1,3:
+NMI backtrace for cpu 0
+CPU: 0 UID: 0 PID: 10218 Comm: kworker/0:3 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Workqueue: events clocksource_watchdog_work
+RIP: 0010:__bfs+0x17d/0x2b0 kernel/locking/lockdep.c:1859
+Code: 00 39 1d 76 82 84 16 4c 89 04 f5 80 52 e0 98 73 06 89 1d 66 82 84 16 49 8b 00 48 39 c1 0f 84 ec fe ff ff 4c 89 78 30 48 8b 00 <48> 39 c8 75 f4 4d 85 ff 0f 85 e0 fe ff ff 8b 1d ff 06 40 17 3b 1d
+RSP: 0018:ffa0000003b1f570 EFLAGS: 00000002
+RAX: ffffffff99bef688 RBX: 00000000000001a1 RCX: ffffffff9825e1d0
+RDX: 0000000000000144 RSI: 00000000000001a4 RDI: ffffffff99b70578
+RBP: 0000000000000030 R08: ffffffff99aa3a58 R09: 0000000000000004
+R10: ffa0000003b1f6f8 R11: 0000000000000000 R12: ffffffff81a0bd10
+R13: ffa0000003b1f600 R14: ffffffff81a0bdd0 R15: ffffffff99b70578
+FS:  0000000000000000(0000) GS:ff1100010b219000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000562f059d7610 CR3: 000000000ff9a000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ __bfs_backwards kernel/locking/lockdep.c:1904 [inline]
+ check_irq_usage+0xb5/0xc80 kernel/locking/lockdep.c:2840
+ check_prev_add+0xfd/0xe60 kernel/locking/lockdep.c:3213
+ check_prevs_add kernel/locking/lockdep.c:3328 [inline]
+ validate_chain kernel/locking/lockdep.c:3952 [inline]
+ __lock_acquire+0x1661/0x2110 kernel/locking/lockdep.c:5288
+ lock_acquire kernel/locking/lockdep.c:5942 [inline]
+ lock_acquire+0x1bf/0x370 kernel/locking/lockdep.c:5899
+ _raw_spin_lock_nested+0x39/0x50 kernel/locking/spinlock.c:413
+ raw_spin_rq_lock_nested+0x33/0x140 kernel/sched/core.c:677
+ raw_spin_rq_lock kernel/sched/sched.h:1719 [inline]
+ rq_lock kernel/sched/sched.h:2057 [inline]
+ ttwu_queue kernel/sched/core.c:4154 [inline]
+ try_to_wake_up+0x96e/0x18f0 kernel/sched/core.c:4489
+ __kthread_create_on_node+0x27e/0x400 kernel/kthread.c:501
+ kthread_create_on_node+0xc3/0x100 kernel/kthread.c:559
+ clocksource_watchdog_work+0x29/0x60 kernel/time/clocksource.c:186
+ process_one_work+0xa9c/0x1dc0 kernel/workqueue.c:3495
+ process_scheduled_works kernel/workqueue.c:3578 [inline]
+ worker_thread+0x698/0xeb0 kernel/workqueue.c:3659
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+NMI backtrace for cpu 3
+CPU: 3 UID: 0 PID: 20282 Comm: kworker/u16:7 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Workqueue: bat_events batadv_dat_purge
+RIP: 0010:its_return_thunk+0x0/0x10 arch/x86/lib/retpoline.S:437
+Code: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc <c3> cc 66 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 e9 6b 80 3f f5 cc
+RSP: 0018:ffa0000004e6fb68 EFLAGS: 00000202
+RAX: 0000000000000003 RBX: 0000000000000003 RCX: ffffffff81d78bad
+RDX: fffffbfff25642dd RSI: 0000000000000202 RDI: 0000000000000000
+RBP: ffffffff8bed499c R08: 0000000000000000 R09: fffffbfff25642dc
+R10: ffffffff92b216e7 R11: 0000000000000000 R12: 0000000000000000
+R13: ff1100012d6999d8 R14: ffffffff8bb105a0 R15: 000000000000033b
+FS:  0000000000000000(0000) GS:ff1100020dd19000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000564fc9bf8db4 CR3: 0000000031d5f000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ rcu_is_watching_curr_cpu include/linux/context_tracking.h:128 [inline]
+ rcu_is_watching+0x13/0xc0 kernel/rcu/tree.c:753
+ trace_preempt_disable include/trace/events/preemptirq.h:49 [inline]
+ trace_preempt_off+0x122/0x170 kernel/trace/trace_preemptirq.c:126
+ __raw_spin_lock_bh include/linux/spinlock_api_smp.h:181 [inline]
+ _raw_spin_lock_bh+0x1c/0x50 kernel/locking/spinlock.c:205
+ spin_lock_bh include/linux/spinlock.h:353 [inline]
+ __batadv_dat_purge.part.0+0xff/0x3b0 net/batman-adv/distributed-arp-table.c:240
+ __batadv_dat_purge net/batman-adv/distributed-arp-table.c:233 [inline]
+ batadv_dat_purge+0x54/0xb0 net/batman-adv/distributed-arp-table.c:271
+ process_one_work+0xa9c/0x1dc0 kernel/workqueue.c:3495
+ process_scheduled_works kernel/workqueue.c:3578 [inline]
+ worker_thread+0x698/0xeb0 kernel/workqueue.c:3659
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+NMI backtrace for cpu 1
+CPU: 1 UID: 0 PID: 4774 Comm: kworker/1:4 Tainted: G            EL      7.4.0-rc3-kernsight-kasan #1 PREEMPT(full) 
+Tainted: [E]=UNSIGNED_MODULE, [L]=SOFTLOCKUP
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+Workqueue: events_power_efficient wg_ratelimiter_gc_entries
+RIP: 0010:native_save_fl arch/x86/include/asm/irqflags.h:26 [inline]
+RIP: 0010:arch_local_save_flags arch/x86/include/asm/irqflags.h:109 [inline]
+RIP: 0010:check_preemption_disabled+0x4b/0x170 lib/smp_processor_id.c:19
+Code: 36 0a 31 ff 89 de 0f 1f 44 00 00 85 db 74 15 0f 1f 44 00 00 44 89 e0 5b 5d 41 5c 41 5d 41 5e e9 4b 5d 03 00 0f 1f 44 00 00 9c <5b> 81 e3 00 02 00 00 31 ff 48 89 de 0f 1f 44 00 00 48 85 db 74 cf
+RSP: 0000:ffa00000021cfb38 EFLAGS: 00000046
+RAX: 0000000000000000 RBX: 8000000000000000 RCX: 0000000000000001
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: ffffffff8c9f4880 R08: 0000000000000000 R09: fffffbfff25642dc
+R10: ffffffff92b216e7 R11: 0000000000000000 R12: 0000000000000001
+R13: ffffffff8e92c6b5 R14: 00000000ffffffff R15: 00000000000009ce
+FS:  0000000000000000(0000) GS:ff1100010b319000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f7f39016e04 CR3: 0000000028535000 CR4: 0000000000753ef0
+PKRU: 55555554
+Call Trace:
+ <TASK>
+ lockdep_recursion_inc kernel/locking/lockdep.c:465 [inline]
+ lock_is_held_type+0x6e/0x150 kernel/locking/lockdep.c:6015
+ lock_is_held include/linux/lockdep.h:249 [inline]
+ __might_resched+0x45d/0x570 kernel/sched/core.c:9161
+ wg_ratelimiter_gc_entries+0x2fa/0x430 drivers/net/wireguard/ratelimiter.c:78
+ process_one_work+0xa9c/0x1dc0 kernel/workqueue.c:3495
+ process_scheduled_works kernel/workqueue.c:3578 [inline]
+ worker_thread+0x698/0xeb0 kernel/workqueue.c:3659
+ kthread+0x395/0x4a0 kernel/kthread.c:436
+ ret_from_fork+0xb11/0xdb0 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>

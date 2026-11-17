@@ -1,0 +1,24 @@
+Extracting prog: 0s
+Minimizing prog: 0s
+Simplifying prog options: 0s
+Extracting C: 0s
+Simplifying C: 0s
+
+
+kernsight state-primed reproduction:
+12:49:34 state-primed repro started for "INFO: task hung in gfs2_glock_nq" (110 log programs, target pre-run state=true, budget=20m0s, workers=1)
+12:50:53 cache warm-up: replaying 72 programs from the previous attempt
+12:57:18 phase1 replay done: 110/110 entries executed
+12:57:23 state distance by category (combined 2.12): xfs_io_transactions_1=4.62 memory_vm_events=4.06 xfs_io_transactions_2=3.84 xfs_metadata=3.82 network_interfaces=3.65 network_ip=3.27 storage_io=2.91 network_tcp=2.73 cpu_cgroup=2.71 memory_page_activity=2.62 xfs_btrees_3=2.44 process_activity=2.37 xfs_btrees_1=2.30 filesystem_ext4=2.26 memory_vm_gauges=2.23 memory_cgroup=2.16 memory_numa=2.13 xfs_btrees_4=2.00 cpu_pressure=1.78 memory_hugepages=1.60 cpu_scheduler=1.47 xfs_btrees_2=1.38 memory_capacity=0.85 memory_slab_objects=0.85 process_topology=0.80 io_pressure=0.80 filesystem_capacity=0.67 kernel_objects=0.41 cpu_perf_events=0.32 memory_pressure=0.31 log_fault_events=0.00 log_filesystems=0.00 log_severity_volume=0.00 log_subsystems=0.00 memory_reclaim=0.00 network_icmp=0.00
+12:57:23 state distance after replay: 2.117
+12:59:23 priming round 1: model ranking failed: kernsight: request POST /repro_prime: Post "http://127.0.0.1:8765/repro_prime": context deadline exceeded
+12:59:23 phase2 priming done: 0 rounds, distance 2.117
+12:59:28 state snapshot taken after construction: testcases will run from the frozen state
+12:59:28 phase3 candidates: 69 suspects, 
+13:01:28 candidate ranking failed: kernsight: request POST /repro_prime: Post "http://127.0.0.1:8765/repro_prime": context deadline exceeded
+13:01:28 candidate 1/69: source=model-impact impact=0.00, running testcase
+13:02:10 candidate 1 reproduced the crash from the frozen state snapshot
+13:02:12 state snapshot exported to /workspace/kernsight_workspace_7.4-rc3/runs/syzkaller/crashes/a4405fafa48fe60334ec54fc5b00632e9d4dc687/state (restore it, then run the testcase to reproduce)
+13:02:12 state-primed repro verified against the state snapshot
+13:02:12 syz reproducer is ready; C conversion is deferred to the independent budgeted task (set KERNSIGHT_REPRO_AUTO_C=1 to convert in the automatic path)
+13:02:12 state-primed repro crashed (distance 2.117 -> 2.117, 182 replay + 0 priming programs, 0 infra failures, 0 vm recoveries, verified=true)

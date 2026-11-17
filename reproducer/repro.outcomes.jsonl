@@ -1,0 +1,2 @@
+{"attempt":1,"confirmed":false,"error":"context deadline exceeded","primed":true,"priming_programs":0,"replay_programs":72,"standard_error":"context deadline exceeded","status":"budget_exhausted","time":"2026-11-16T12:48:41.400124233Z","title":"INFO: task hung in gfs2_glock_nq"}
+{"attempt":2,"confirmed":true,"primed":true,"priming_programs":0,"replay_programs":182,"status":"verified","time":"2026-11-16T13:02:12.394274257Z","title":"INFO: task hung in gfs2_glock_nq"}

@@ -1,0 +1,8 @@
+[2026-11-17 11:00:35] kernel=/workspace/linux-7.4-rc3/arch/x86/boot/bzImage sha=0c16409f8aec508ac44a63e631c2bd352536401f3fd0856df1d839fb953a1882
+[2026-11-17 11:00:35] image=/workspace/vm/trixie-7.4-rc3.img
+[2026-11-17 11:00:35] programs=/workspace/validation/rc3-gfs2-glock-hang-verify-20261117/repro.kernsight.prog sha=a660a658972d49215fa525b3b868afcd924f9a91a1034612e6c51e199debd56b runsec=600 procs=8
+[2026-11-17 11:02:28] ssh-up after 33s
+[2026-11-17 11:02:28] copying syz binaries and 85M program set...
+[2026-11-17 11:02:31] starting syz-execprog (repeat=0, timeout 600)
+[2026-11-17 11:12:33] exec ssh rc=0 elapsed=602s
+[2026-11-17 11:12:34] TARGET-HIT: task hung in gfs2_glock_nq

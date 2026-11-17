@@ -1,0 +1,26 @@
+2026/11/17 11:14:24 parsed 183 programs
+2026/11/17 11:14:24 serving rpc on tcp://42619
+mkswap: error: swap area needs to be at least 40 KiB
+2026/11/17 11:14:33 executed programs: 0
+2026/11/17 11:15:13 executed programs: 183
+2026/11/17 11:15:52 executed programs: 366
+2026/11/17 11:16:24 executed programs: 549
+2026/11/17 11:16:55 executed programs: 732
+2026/11/17 11:17:25 executed programs: 915
+2026/11/17 11:17:53 executed programs: 1098
+2026/11/17 11:18:26 executed programs: 1281
+2026/11/17 11:18:59 executed programs: 1464
+2026/11/17 11:19:37 executed programs: 1647
+2026/11/17 11:20:14 executed programs: 1830
+2026/11/17 11:20:49 executed programs: 2013
+2026/11/17 11:21:22 executed programs: 2196
+2026/11/17 11:21:51 executed programs: 2379
+2026/11/17 11:22:25 executed programs: 2562
+2026/11/17 11:22:57 executed programs: 2745
+2026/11/17 11:23:32 executed programs: 2928
+2026/11/17 11:24:01 executed programs: 3111
+2026/11/17 11:24:39 executed programs: 3294
+2026/11/17 11:25:18 executed programs: 3477
+SYZ-EXECUTOR: PREEMPTED (errno 9)
+SIGINT: shutting down...
+EXIT:124

@@ -2,13 +2,8 @@
 	"Count": 0,
 	"Nodes": {
 		"INFO: task hung in gfs2_glock_nq": {
-			"Count": 24,
-			"Nodes": {
-				"SYZFAIL: failed to recv rpc": {
-					"Count": 1,
-					"Nodes": null
-				}
-			}
+			"Count": 3,
+			"Nodes": null
 		}
 	}
 }
